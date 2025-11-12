@@ -9,7 +9,7 @@ const CATALOG_ITEMS = [
         autor: "Neil Galman",
         lancamento: "02/07/2002",
     },
-        {
+    {
         id: 2 ,
         titulo: "Raposa de crochê",
         categoria: "Artesanato",
@@ -19,7 +19,7 @@ const CATALOG_ITEMS = [
         material: "Lã de cor laranja e algodão por dentro",
         dimensoes: "30cm x 15cm",
     },
-        {
+    {
         id: 3 ,
         titulo: "A Bilioteca da Meia Noite",
         categoria: "Livros",
@@ -29,7 +29,7 @@ const CATALOG_ITEMS = [
         autor: "Matt Haig",
         lancamento: "13/08/2020",
     },
-        {
+    {
         id: 4,
         titulo: "Bolsa de crochê - Hello kitty",
         categoria: "Artesanato",
@@ -41,8 +41,8 @@ const CATALOG_ITEMS = [
     },
 ]
 /**
- * Adiciona listeners aos botões "Ver Detalhes" para popular o modal dinamicamente.
- */
+* Adiciona listeners aos botões "Ver Detalhes" para popular o modal dinamicamente.
+*/
 const modalElement = document.querySelector('#detalheModal');
 const modalTitle = modalElement.querySelector('.modal-title');
 const modalBody = modalElement.querySelector('.modal-body');
@@ -50,23 +50,23 @@ const modalAction = modalElement.querySelector('.btn-success');
 
 
 modalElement.addEventListener('show.bs.modal', function(event) {
-
+    
     const button = event.relatedTarget;
     const itemId = parseInt(button.getAttribute('data-item-id'));
     
     const item = CATALOG_ITEMS.find(i => i.id === itemId);
-
+    
     if (item) {
-
+        
         modalTitle.textContent = item.titulo;
-
+        
         let detailsHTML = `
         <p class="mb-1"><strong>Categoria:</strong> <span class="badge bg-secondary">${item.categoria}</span></p>
         <p class="fs-4 fw-bold text-success mb-3">Preço: ${item.preco}</p>
         <hr>
         <p>${item.detalhes}</p>
         `;
-
+        
         if(item.categoria === 'Livros') {
             detailsHTML += `<p><strong>Autor:</strong> ${item.autor}</p>`;
             detailsHTML += `<p><strong>Lancamento:</strong> ${item.lancamento}</p>`;
@@ -76,36 +76,72 @@ modalElement.addEventListener('show.bs.modal', function(event) {
             detailsHTML += `<p><strong>Dimensões/Comprimento:</strong> ${item.dimensoes || item.comprimento}</p>`;
             detailsHTML += `<p class="text-info"><strong>Peças Exclusivas em Estoque:</strong> ${item.estoque}</p>`;
         }
-
+        
         modalBody.innerHTML = detailsHTML
-
+        
         modalAction.onclick = () => {
             console.log(`Ação: Item '${item.titulo}' (ID: ${item.id}) adicionado ao carrinho.`);
-
+            
             const bsModal = bootstrap.Modal.getInstance(modalElement);
             if(bsModal) bsModal.hide();
-
+            
         };
-
+        
     }
 });
 
 const searchInput = document.getElementById('search-input');
-const searchButoon = getElementById('search-button');
+const searchButton = document.getElementById('search-button');
 const items = document.querySelectorAll('.item-catalogo');
 
-function executarPesquisA(event) {
-
+function executarPesquisa(event) {
+    
+    event.preventDefault();
+    
+    const query = searchInput.value.toLowerCase().trim();
+    
+    items.forEach(item => {
+        
+        const title = item.querySelector('.card-title').textContent.toLowerCase();
+        const category = item.getAttribute('data-categoria').toLowerCase();
+        
+        if (title.includes(query) || category.includes(query) || query === "") {
+            item.style.display = 'block'; 
+        } else {
+            item.style.display = 'none';
+        }
+    });
+    
 }
 
 searchButton.addEventListener('click', executarPesquisa);
 
 searchInput.addEventListener('keyup', (event) => {
-
+    
     if (event.key === 'Enter') {
         executarPesquisa(event);
-    } else if (searchInput.ariaValueMax.trim() === "") {
-
+    } else if (searchInput.value.trim() === "") {
+        
         executarPesquisa(event);
+    }
+});
+
+items.forEach((card, index) => {
+    const img = card.querySelector('img');
+    const title = card.querySelector('.card-title');
+    const category = card.querySelectorAll('.card-text')[0];
+    const description = card.querySelectorAll('.card-text')[1];
+    
+    const item = CATALOG_ITEMS.find(i => i.id === (index + 1));
+    
+    if (item) {
+        
+        img.src = img.src.replace(/\?text=(.*)/, "?text=" + item.categoria.toUpperCase());
+        
+        title.textContent = item.titulo;
+        
+        category.textContent = "Categoria: " + item.categoria;
+        
+        description.textContent = item.detalhes;
     }
 });
